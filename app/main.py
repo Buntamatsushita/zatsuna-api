@@ -10,6 +10,8 @@ from PIL import Image
 import keras
 from keras.models import load_model
 
+import json
+
 
 app = FastAPI()
 
@@ -54,6 +56,21 @@ async def upload_file(file: UploadFile = File(...)):
 
         return {"filename": filename, "result": result[0], "prd":result[1]}
     return {"Error": "アップロードファイルが見つかりません。"}
+
+@app.get("/product/all")
+async def get_all():
+    json_open = open('../src/product.json', 'r')
+    json_load = json.load(json_open)
+    return json_load
+
+@app.get("/product/")
+async def get(id: int=0):
+    json_open = open('../src/product.json', 'r')
+    json_load = json.load(json_open)
+    for i in json_load["contents"]:
+        if i["id"] == id:
+            return i
+    return {"Error": "コンテンツが見つかりません。"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8000, reload=True)
